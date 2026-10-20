@@ -682,3 +682,7 @@ body[data-theme="violet"] .nav-item.active { background: rgba(139, 92, 246, .12)
 .archive-body { background: #000; padding: 10px; text-align: center; overflow: auto; }
 .archive-body video, .archive-body img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; }
 .md-check input[type="date"] { width: 132px; }
+
+.pick-wrap { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; }
+.pick-wrap > input { flex: 1; min-width: 0; }
+.pick-wrap > .pick-btn { flex: 0 0 auto; white-space: nowrap; }

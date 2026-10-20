@@ -77,8 +77,48 @@ async function api(path, options = {}) {
   return data;
 }
 
-function fmtSize(bytes) {
-  if (!bytes) return "0 B";
+const PICK_FIELDS = [
+  "out-dir", "out-dir-bili", "profile-path", "md-out", "md-convert-out",
+  "cv-out", "cv-ncm-out", "cfg-output", "cfg-music-dir",
+];
+
+function installPickers() {
+  for (const id of PICK_FIELDS) {
+    const input = $(id);
+    if (!input || input.dataset.pick) continue;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ghost small pick-btn";
+    button.textContent = "浏览";
+    button.onclick = async () => {
+      const label = button.textContent;
+      button.disabled = true;
+      button.textContent = "选择中…";
+      try {
+        const data = await api("/api/pick-folder", {
+          method: "POST",
+          body: JSON.stringify({ initial: input.value.trim() }),
+        });
+        if (data.path) {
+          input.value = data.path;
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      } catch (err) {
+        toast(`选择目录失败：${err.message}`);
+      } finally {
+        button.disabled = false;
+        button.textContent = label;
+      }
+    };
+    const wrap = document.createElement("div");
+    wrap.className = "pick-wrap";
+    input.parentNode.insertBefore(wrap, input);
+    wrap.append(input, button);
+    input.dataset.pick = "1";
+  }
+}
+
+function fmtSize(bytes) {  if (!bytes) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
   let value = bytes;
   let i = 0;
@@ -3077,6 +3117,7 @@ function bind() {
   });
 }
 
+installPickers();
 bind();
 refresh();
 const initialView = (location.hash || "").replace(/^#/, "");

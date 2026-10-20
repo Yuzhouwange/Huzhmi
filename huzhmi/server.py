@@ -23,6 +23,7 @@ from . import douyin
 from . import media
 from . import music as music_mod
 from . import platforms
+from . import picker
 from . import rules as rules_mod
 from .engine import Engine, free_space_gb
 from .net import UA, PlatformError
@@ -612,6 +613,9 @@ def make_handler(app: App):
             if path == "/api/restart":
                 app.restart_requested = True
                 return _json(self, {"ok": True})
+            if path == "/api/pick-folder":
+                folder = picker.pick_folder(str(payload.get("initial") or ""))
+                return _json(self, {"path": folder})
             if path.startswith("/api/jobs/"):
                 parts = path.strip("/").split("/")  # api/jobs/<id>/<action>
                 if len(parts) == 4:
