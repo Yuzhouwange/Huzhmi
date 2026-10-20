@@ -976,9 +976,9 @@ def serve(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True,
 
     try:
         if window or open_browser:
-            # 页面每 5 秒 ping 一次；Edge 的启动进程提前退出时，只要窗口还
-            # 在发心跳，服务就继续活着，不再跟着 launcher 一起退出。
-            while time.time() - server.app.last_ping <= 25:  # type: ignore[attr-defined]
+            # 两个存活信号取并集：Edge 进程还在，或页面每 5 秒发心跳。
+            # 老页面没有心跳时靠进程；Edge launcher 提前退出时靠心跳。
+            while True:
                 if server.app.restart_requested:  # type: ignore[attr-defined]
                     if proc is not None:
                         try:
@@ -986,6 +986,10 @@ def serve(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True,
                         except OSError:
                             pass
                     server.shutdown()
+                    break
+                proc_alive = proc is not None and proc.poll() is None
+                ping_alive = time.time() - server.app.last_ping <= 30  # type: ignore[attr-defined]
+                if not proc_alive and not ping_alive:
                     break
                 time.sleep(0.5)
         else:
