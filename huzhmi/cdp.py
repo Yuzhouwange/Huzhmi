@@ -1,4 +1,4 @@
-﻿"""极简 CDP 客户端：起一个 headless 浏览器，在页面上下文里执行 JS。
+"""极简 CDP 客户端：起一个 headless 浏览器，在页面上下文里执行 JS。
 
 不依赖 selenium/playwright/websocket-client，全部标准库实现：
   - WebSocket 握手 + 帧编解码（客户端掩码）
@@ -179,7 +179,7 @@ class Browser:
         self.keep_profile = keep_profile
         args = [
             exe,
-            "--headless" if headless else "--start-maximized",
+            "--headless=new" if headless else "--start-maximized",
             "--disable-gpu",
             "--no-first-run",
             "--no-default-browser-check",
@@ -194,7 +194,20 @@ class Browser:
         self.proc = subprocess.Popen(
             args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
-        self.ws = WebSocket(self._wait_endpoint(), timeout=60)
+        try:
+            self.ws = WebSocket(self._wait_endpoint(), timeout=60)
+        except Exception:
+            try:
+                self.proc.terminate()
+                self.proc.wait(timeout=5)
+            except Exception:  # noqa: BLE001
+                try:
+                    self.proc.kill()
+                except Exception:  # noqa: BLE001
+                    pass
+            if not self.keep_profile:
+                shutil.rmtree(self.profile, ignore_errors=True)
+            raise
         self._msg_id = 0
         self._lock = threading.Lock()
         self._session_id: str | None = None
@@ -202,12 +215,13 @@ class Browser:
 
     # ---------- 基础设施 ----------
 
-    def _wait_endpoint(self, timeout: float = 25.0) -> str:
+    def _wait_endpoint(self, timeout: float = 40.0) -> str:
         deadline = time.time() + timeout
         last = ""
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         while time.time() < deadline:
             try:
-                with urllib.request.urlopen(
+                with opener.open(
                     f"http://127.0.0.1:{self.port}/json/version", timeout=2
                 ) as resp:
                     data = json.loads(resp.read().decode())

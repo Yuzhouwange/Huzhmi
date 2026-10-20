@@ -225,18 +225,29 @@ class Bridge:
         if self._browser is not None:
             self._apply_cookie(self._browser)
             return self._browser
-        try:
-            browser = Browser(headless=True)
-            browser.open_page("about:blank")
-            # 首页先走一遍，让页面装上签名拦截器、拿到匿名 Cookie
-            browser.goto("https://www.douyin.com/", wait_pages=1.2)
-            self._browser = browser
-            self._ready = True
-            self._apply_cookie(browser)
-            return browser
-        except Exception as exc:  # noqa: BLE001
-            self.last_error = f"{type(exc).__name__}: {exc}"
-            raise BridgeError(f"页面桥启动失败：{exc}") from exc
+        last_exc: Exception | None = None
+        for _ in range(2):
+            browser = None
+            try:
+                browser = Browser(headless=True)
+                browser.open_page("about:blank")
+                # 首页先走一遍，让页面装上签名拦截器、拿到匿名 Cookie
+                browser.goto("https://www.douyin.com/", wait_pages=1.2)
+                self._browser = browser
+                self._ready = True
+                self._apply_cookie(browser)
+                return browser
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                if browser is not None:
+                    try:
+                        browser.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+                time.sleep(1.0)
+        assert last_exc is not None
+        self.last_error = f"{type(last_exc).__name__}: {last_exc}"
+        raise BridgeError(f"页面桥启动失败：{last_exc}") from last_exc
 
     def _apply_cookie(self, browser: Browser) -> None:
         """把设置里保存的抖音 Cookie 写进浏览器。
