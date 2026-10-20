@@ -616,6 +616,11 @@ def make_handler(app: App):
             if path == "/api/pick-folder":
                 folder = picker.pick_folder(str(payload.get("initial") or ""))
                 return _json(self, {"path": folder})
+            if path == "/api/pick-file":
+                target = picker.pick_file(
+                    str(payload.get("initial") or ""),
+                    str(payload.get("kind") or "any"))
+                return _json(self, {"path": target})
             if path.startswith("/api/jobs/"):
                 parts = path.strip("/").split("/")  # api/jobs/<id>/<action>
                 if len(parts) == 4:

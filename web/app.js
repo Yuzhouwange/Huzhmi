@@ -77,44 +77,94 @@ async function api(path, options = {}) {
   return data;
 }
 
-const PICK_FIELDS = [
+const FOLDER_FIELDS = [
   "out-dir", "out-dir-bili", "profile-path", "md-out", "md-convert-out",
   "cv-out", "cv-ncm-out", "cfg-output", "cfg-music-dir",
 ];
+const FILE_FIELDS = {
+  "cfg-ffmpeg": "ffmpeg",
+  "md-ncm-path": "ncm",
+  "md-convert-path": "audio",
+  "cv-ncm-path": "ncm",
+  "cv-path": "audio",
+};
+const FILE_ONLY = new Set(["cfg-ffmpeg"]);
+
+function pickButton(label, handler) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "ghost small pick-btn";
+  button.textContent = label;
+  button.onclick = async () => {
+    const old = button.textContent;
+    button.disabled = true;
+    button.textContent = "选择中…";
+    try {
+      await handler();
+    } finally {
+      button.disabled = false;
+      button.textContent = old;
+    }
+  };
+  return button;
+}
+
+function attachPicker(input, buttons) {
+  if (!input || input.dataset.pick) return;
+  const wrap = document.createElement("div");
+  wrap.className = "pick-wrap";
+  input.parentNode.insertBefore(wrap, input);
+  wrap.append(input, ...buttons);
+  input.dataset.pick = "1";
+}
+
+function chooseFolder(input) {
+  return async () => {
+    try {
+      const data = await api("/api/pick-folder", {
+        method: "POST",
+        body: JSON.stringify({ initial: input.value.trim() }),
+      });
+      if (data.path) {
+        input.value = data.path;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    } catch (err) {
+      toast(`选择目录失败：${err.message}`);
+    }
+  };
+}
+
+function chooseFile(input, kind) {
+  return async () => {
+    try {
+      const data = await api("/api/pick-file", {
+        method: "POST",
+        body: JSON.stringify({ initial: input.value.trim(), kind }),
+      });
+      if (data.path) {
+        input.value = data.path;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    } catch (err) {
+      toast(`选择文件失败：${err.message}`);
+    }
+  };
+}
 
 function installPickers() {
-  for (const id of PICK_FIELDS) {
+  for (const id of FOLDER_FIELDS) {
     const input = $(id);
-    if (!input || input.dataset.pick) continue;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "ghost small pick-btn";
-    button.textContent = "浏览";
-    button.onclick = async () => {
-      const label = button.textContent;
-      button.disabled = true;
-      button.textContent = "选择中…";
-      try {
-        const data = await api("/api/pick-folder", {
-          method: "POST",
-          body: JSON.stringify({ initial: input.value.trim() }),
-        });
-        if (data.path) {
-          input.value = data.path;
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-      } catch (err) {
-        toast(`选择目录失败：${err.message}`);
-      } finally {
-        button.disabled = false;
-        button.textContent = label;
-      }
-    };
-    const wrap = document.createElement("div");
-    wrap.className = "pick-wrap";
-    input.parentNode.insertBefore(wrap, input);
-    wrap.append(input, button);
-    input.dataset.pick = "1";
+    if (input) attachPicker(input, [pickButton("浏览", chooseFolder(input))]);
+  }
+  for (const [id, kind] of Object.entries(FILE_FIELDS)) {
+    const input = $(id);
+    if (!input) continue;
+    const buttons = [pickButton("选择", chooseFile(input, kind))];
+    if (!FILE_ONLY.has(id)) {
+      buttons.push(pickButton("目录", chooseFolder(input)));
+    }
+    attachPicker(input, buttons);
   }
 }
 
