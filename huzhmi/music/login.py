@@ -13,25 +13,37 @@
 
 from __future__ import annotations
 
+import hashlib
 import http.cookiejar
 import json
+import random
 import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
+from . import aes
+
 UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
+# 扫码必须用官方客户端协议；网页 UA 会在手机确认后返回 8821 风控
+EAPI_UA = "NeteaseMusic 9.0.90/5038 (iPhone; iOS 16.2; zh_CN)"
+EAPI_KEY = b"e82ckenh8dichen8"
 API = "https://music.163.com"
 LOGIN_URL = "https://music.163.com/login?codekey={key}"
+_QR_UNIKEY = "/eapi/login/qrcode/unikey"
+_QR_CHECK = "/eapi/login/qrcode/client/login"
+_QR_UNIKEY_PATH = "/api/login/qrcode/unikey"
+_QR_CHECK_PATH = "/api/login/qrcode/client/login"
 _CODES = {
     800: "二维码已过期，请刷新",
     801: "等待扫码",
     802: "已扫描，请在手机上确认",
     803: "登录成功",
+    8821: "网易云风控，请稍后重试或改用 Cookie 登录",
 }
 
 
@@ -41,6 +53,36 @@ class LoginError(RuntimeError):
 
 def _cookie_header(jar: http.cookiejar.CookieJar) -> str:
     return "; ".join(f"{cookie.name}={cookie.value}" for cookie in jar)
+
+
+def _eapi_params(path: str, payload: dict) -> str:
+    text = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+    digest = hashlib.md5(
+        f"nobody{path}use{text}md5forencrypt".encode("utf-8")).hexdigest()
+    raw = f"{path}-36cd479b6b5-{text}-36cd479b6b5-{digest}".encode("utf-8")
+    pad = 16 - len(raw) % 16
+    raw += bytes([pad]) * pad
+    return aes.encrypt_ecb(raw, EAPI_KEY).hex().upper()
+
+
+def _clean_cookie(raw: str) -> str:
+    pairs: list[str] = []
+    for part in str(raw or "").split(";"):
+        item = part.strip()
+        if not item or "=" not in item:
+            continue
+        name = item.split("=", 1)[0].strip().lower()
+        if name in {"path", "domain", "expires", "max-age", "secure",
+                    "httponly", "samesite"}:
+            continue
+        if item not in pairs:
+            pairs.append(item)
+    return "; ".join(pairs)
+
+
+def _clean_set_cookie(headers: list[str]) -> str:
+    return _clean_cookie("; ".join(
+        line.split(";", 1)[0] for line in headers or []))
 
 
 class NeteaseLogin:
@@ -54,15 +96,17 @@ class NeteaseLogin:
         self._opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self._jar))
         self._account_cache: tuple[float, dict] | None = None
+        self._device_id = "".join(
+            random.choice("0123456789ABCDEF") for _ in range(52))
 
     # ------------------------------------------------------------------ 扫码
 
     def start(self) -> dict:
         with self._lock:
             self._jar.clear()
-            self._opener = urllib.request.build_opener(
-                urllib.request.HTTPCookieProcessor(self._jar))
-            data = self._get_json(f"{API}/api/login/qrcode/unikey?type=1")
+            self._device_id = "".join(
+                random.choice("0123456789ABCDEF") for _ in range(52))
+            data, _ = self._eapi_post(_QR_UNIKEY, _QR_UNIKEY_PATH, {"type": "3"})
             key = str(data.get("unikey") or "")
             if not key:
                 raise LoginError(data.get("message") or "网易云没有返回二维码 key")
@@ -76,9 +120,12 @@ class NeteaseLogin:
             key = str(key or self._key or "")
             if not key:
                 raise LoginError("请先点「扫码登录」")
-            data = self._get_json(
-                f"{API}/api/login/qrcode/client/login?key={urllib.parse.quote(key)}&type=1")
+            data, set_cookie = self._eapi_post(
+                _QR_CHECK, _QR_CHECK_PATH, {"key": key, "type": "3"})
             code = int(data.get("code") or 0)
+            cookie = _clean_cookie(str(data.get("cookie") or ""))
+            if not cookie:
+                cookie = _clean_set_cookie(set_cookie)
             result = {
                 "code": code,
                 "message": _CODES.get(code) or data.get("message") or "",
@@ -86,10 +133,11 @@ class NeteaseLogin:
                 "avatar": data.get("avatarUrl") or "",
                 "provider": "netease",
             }
-            if code == 803:
-                cookie = _cookie_header(self._jar)
+            if code == 803 or "MUSIC_U=" in cookie:
                 if "MUSIC_U=" not in cookie:
                     raise LoginError("登录成功但没拿到 MUSIC_U，请重试")
+                result["code"] = 803
+                result["message"] = "登录成功"
                 result["cookie"] = cookie
                 self._key = ""
                 self._account_cache = None
@@ -129,6 +177,51 @@ class NeteaseLogin:
         self._account_cache = (now, dict(result))
         return result
     # ------------------------------------------------------------------ 工具
+
+    def _device_cookie(self) -> str:
+        now = int(time.time() * 1000)
+        header = {
+            "osver": "Microsoft-Windows-10-Professional-build-19045-64bit",
+            "deviceId": self._device_id,
+            "os": "pc",
+            "appver": "3.1.17.204416",
+            "versioncode": "140",
+            "mobilename": "",
+            "buildver": str(now)[:10],
+            "resolution": "1920x1080",
+            "__csrf": "",
+            "channel": "netease",
+            "requestId": f"{now}_{random.randint(0, 9999):04d}",
+        }
+        return "; ".join(
+            f"{urllib.parse.quote(str(k))}={urllib.parse.quote(str(v))}"
+            for k, v in header.items())
+
+    def _eapi_post(self, path: str, crypt_path: str,
+                   payload: dict) -> tuple[dict, list[str]]:
+        body = urllib.parse.urlencode(
+            {"params": _eapi_params(crypt_path, payload)}).encode()
+        request = urllib.request.Request(
+            f"{API}{path}", data=body,
+            headers={
+                "User-Agent": EAPI_UA,
+                "Cookie": self._device_cookie(),
+                "Referer": f"{API}/",
+                "Content-Type": "application/x-www-form-urlencoded",
+            })
+        try:
+            with urllib.request.urlopen(request, timeout=25) as response:
+                raw = response.read()
+                set_cookie = response.headers.get_all("Set-Cookie") or []
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError) as exc:
+            raise LoginError(f"请求网易云失败：{exc}") from exc
+        try:
+            data = json.loads(raw.decode("utf-8", "replace"))
+        except ValueError as exc:
+            raise LoginError("网易云返回的不是 JSON") from exc
+        if not isinstance(data, dict):
+            raise LoginError("网易云返回格式异常")
+        return data, list(set_cookie)
 
     def _get_json(self, url: str, headers: dict | None = None,
                   use_jar: bool = True) -> dict:
