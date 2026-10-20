@@ -1,4 +1,4 @@
-﻿/* Huzhmi 前端：轮询 /api/bootstrap，按 id 增量更新 DOM */
+/* Huzhmi 前端：轮询 /api/bootstrap，按 id 增量更新 DOM */
 
 const $ = (id) => document.getElementById(id);
 const rows = new Map(); // job_id -> {el, refs}
@@ -63,10 +63,15 @@ const STATUS_TEXT = {
 };
 
 async function api(path, options = {}) {
-  const res = await fetch(path, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+  let res;
+  try {
+    res = await fetch(path, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+  } catch (err) {
+    throw new Error("无法连接 Huzhmi 服务，请刷新页面或重启应用");
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
