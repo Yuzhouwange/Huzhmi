@@ -3085,3 +3085,9 @@ setInterval(() => {
   if (!document.hidden) refresh();
 }, 1500);
 
+setInterval(() => {
+  if (!document.hidden) {
+    fetch("/api/ping", { cache: "no-store" }).catch(() => {});
+  }
+}, 5000);
+

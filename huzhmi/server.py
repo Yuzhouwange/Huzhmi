@@ -59,6 +59,7 @@ class App:
         # 网易云扫码登录（拿 MUSIC_U，会员曲/无损靠它）
         self.music_login = music_mod.login.NeteaseLogin()
         self.restart_requested = False
+        self.last_ping = time.time()
         url = str(cfg.get("rules_url") or "").strip()
         if url:
             threading.Thread(target=self._refresh_rules, args=(url,),
@@ -189,6 +190,9 @@ def make_handler(app: App):
                 )
             if path == "/api/rules":
                 return _json(self, rules_mod.load())
+            if path == "/api/ping":
+                app.last_ping = time.time()
+                return _json(self, {"ok": True})
             if path == "/api/bootstrap":
                 return _json(self, app.snapshot())
             if path == "/api/jobs":
@@ -971,18 +975,22 @@ def serve(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True,
         print("按 Ctrl+C 退出。", flush=True)
 
     try:
-        if proc is not None:
-            while proc.poll() is None:          # 关窗 = 退出
-                if server.app.restart_requested:
-                    try:
-                        proc.terminate()
-                    except OSError:
-                        pass
+        if window or open_browser:
+            # 页面每 5 秒 ping 一次；Edge 的启动进程提前退出时，只要窗口还
+            # 在发心跳，服务就继续活着，不再跟着 launcher 一起退出。
+            while time.time() - server.app.last_ping <= 25:  # type: ignore[attr-defined]
+                if server.app.restart_requested:  # type: ignore[attr-defined]
+                    if proc is not None:
+                        try:
+                            proc.terminate()
+                        except OSError:
+                            pass
+                    server.shutdown()
                     break
-                time.sleep(0.3)
+                time.sleep(0.5)
         else:
             while thread.is_alive():
-                if server.app.restart_requested:
+                if server.app.restart_requested:  # type: ignore[attr-defined]
                     server.shutdown()
                     break
                 thread.join(0.5)
