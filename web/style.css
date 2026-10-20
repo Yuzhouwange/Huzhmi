@@ -686,3 +686,11 @@ body[data-theme="violet"] .nav-item.active { background: rgba(139, 92, 246, .12)
 .pick-wrap { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; }
 .pick-wrap > input { flex: 1; min-width: 0; }
 .pick-wrap > .pick-btn { flex: 0 0 auto; white-space: nowrap; }
+
+.secret-wrap { display: flex; align-items: stretch; gap: 6px; width: 100%; }
+.secret-wrap > textarea { flex: 1; min-width: 0; }
+.secret-toggle {
+  flex: 0 0 28px; padding: 6px 2px; writing-mode: vertical-rl;
+  text-orientation: upright; letter-spacing: 3px; font-size: 11px;
+}
+.secret-mask { -webkit-text-security: disc; text-security: disc; }

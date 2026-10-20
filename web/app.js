@@ -152,6 +152,33 @@ function chooseFile(input, kind) {
   };
 }
 
+const SECRET_FIELDS = ["cfg-cookie", "cfg-bili-cookie", "cfg-music-cookie"];
+
+function installSecretToggles() {
+  for (const id of SECRET_FIELDS) {
+    const area = $(id);
+    if (!area || area.dataset.secret) continue;
+    area.classList.add("secret-mask");
+    area.setAttribute("autocomplete", "off");
+    area.setAttribute("autocapitalize", "off");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ghost small secret-toggle";
+    button.textContent = "显示";
+    button.setAttribute("aria-label", "显示 Cookie");
+    button.onclick = () => {
+      const hidden = area.classList.toggle("secret-mask");
+      button.textContent = hidden ? "显示" : "隐藏";
+      button.setAttribute("aria-label", hidden ? "显示 Cookie" : "隐藏 Cookie");
+    };
+    const wrap = document.createElement("div");
+    wrap.className = "secret-wrap";
+    area.parentNode.insertBefore(wrap, area);
+    wrap.append(button, area);
+    area.dataset.secret = "1";
+  }
+}
+
 function installPickers() {
   for (const id of FOLDER_FIELDS) {
     const input = $(id);
@@ -3167,6 +3194,7 @@ function bind() {
   });
 }
 
+installSecretToggles();
 installPickers();
 bind();
 refresh();
