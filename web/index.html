@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DouyinKit · 抖音无水印下载</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1115'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23ff2d55'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="side-brand">
+      <span class="dot"></span>
+      <span class="side-name">DouyinKit</span>
+      <span class="ver" id="ver"></span>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item active" data-view="douyin">
+        <span class="nav-text">抖音 / TikTok</span>
+        <span class="nav-sub">视频 · 主页多选</span>
+      </button>
+      <button class="nav-item" data-view="discover">
+        <span class="nav-text">抖音发现</span>
+        <span class="nav-sub">热榜 · 关键词搜索</span>
+      </button>
+      <button class="nav-item" data-view="bilibili">
+        <span class="nav-text">B站下载</span>
+        <span class="nav-sub">视频 · 分P · 番剧</span>
+      </button>
+      <button class="nav-item" data-view="archive">
+        <span class="nav-text">作品档案</span>
+        <span class="nav-sub">本地视频 · 图片</span>
+      </button>
+      <button class="nav-item" data-view="audio">
+        <span class="nav-text">视频转音频</span>
+        <span class="nav-sub">提取音轨 · 转码</span>
+      </button>
+      <button class="nav-item" data-view="convert">
+        <span class="nav-text">音频转换</span>
+        <span class="nav-sub">NCM · MP3/WAV · 互转</span>
+      </button>
+      <button class="nav-item" data-view="musicdl">
+        <span class="nav-text">音乐下载</span>
+        <span class="nav-sub">搜索 · 专辑 · 转 MP3/WAV</span>
+      </button>
+      <button class="nav-item" data-view="music">
+        <span class="nav-text">音乐体检</span>
+        <span class="nav-sub">查出坏文件</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <button id="btn-settings" class="ghost small">设置</button>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="top">
+      <h1 id="view-title">抖音下载</h1>
+      <div class="stats">
+        <span class="stat"><b id="c-running">0</b> 下载中</span>
+        <span class="stat"><b id="c-queued">0</b> 排队</span>
+        <span class="stat"><b id="c-done">0</b> 完成</span>
+        <span class="stat"><b id="c-failed">0</b> 失败</span>
+        <span class="stat"><b id="c-paused">0</b> 已暂停</span>
+        <button id="btn-global-pause" class="ghost">暂停全部</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 抖音 -->
+      <section class="view" data-view-panel="douyin">
+        <section class="card paste">
+          <label for="input" id="paste-label">粘贴抖音 / TikTok 作品链接 / 抖音主页链接 / 整段分享文案（支持多行、批量）</label>
+          <textarea id="input" rows="5" spellcheck="false"
+            placeholder="抖音：https://v.douyin.com/xxxxxxx/&#10;TikTok：https://www.tiktok.com/@user/video/730...&#10;抖音主页：https://www.douyin.com/user/MS4wLjABAAAA...&#10;一天多条就一次粘多行"></textarea>
+          <div class="paste-actions">
+            <button id="btn-submit" class="primary">加入队列</button>
+            <span class="hint">Ctrl / Cmd + Enter 快速提交 · 已下载过的会自动跳过</span>
+          </div>
+          <label class="path-label">下载到
+            <input id="out-dir" type="text" spellcheck="false"
+              placeholder="留空 = 设置里的默认目录；也可以填 D:\Videos\某个文件夹">
+          </label>
+          <label class="md-check"><input type="checkbox" id="force-redownload">
+            重新下载已存在（覆盖旧文件）</label>
+          <div id="toast" class="toast" hidden></div>
+        </section>
+
+        <section class="card profile" id="profile-panel" hidden>
+          <div class="list-head">
+            <h2 id="profile-title">主页作品</h2>
+            <div class="profile-tools">
+              <button id="btn-select-all" class="ghost small">全选</button>
+              <button id="btn-select-none" class="ghost small">清空</button>
+              <button id="btn-close-profile" class="ghost small">关闭</button>
+            </div>
+          </div>
+          <div class="profile-bar">
+            <label class="path-label">下载到
+              <input id="profile-path" type="text" spellcheck="false"
+                placeholder="留空则用设置里的默认目录；也可填 D:\Videos\某博主">
+            </label>
+            <label class="md-check">从 <input id="profile-date-from" type="date"></label>
+            <label class="md-check">到 <input id="profile-date-to" type="date"></label>
+            <button id="btn-download-selected" class="primary" disabled>下载所选 (0)</button>
+            <button id="btn-load-more" class="ghost small" hidden>加载更多</button>
+            <button id="btn-profile-login" class="ghost small" hidden>扫码登录后加载全部</button>
+          </div>
+          <div id="profile-grid" class="grid"></div>
+          <p id="profile-hint" class="hint"></p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>抖音任务</h2>
+            <div class="profile-tools">
+              <button id="btn-cancel-all" class="ghost small danger" hidden>取消全部</button>
+              <button id="btn-retry-failed" class="ghost small" hidden>重试失败</button>
+              <button id="btn-clear-finished" class="ghost small">清空已结束</button>
+              <button id="btn-queue-pause" class="ghost small">暂停全部</button>
+              <button id="btn-open" class="ghost small">打开下载目录</button>
+            </div>
+          </div>
+          <div id="jobs" class="jobs"></div>
+          <p id="empty" class="empty">还没有抖音任务。粘个链接试试。</p>
+        </section>
+      </section>
+
+      <!-- 抖音发现 -->
+      <section class="view" data-view-panel="discover" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>抖音热榜</h2>
+            <div class="profile-tools">
+              <button id="btn-hot-refresh" class="ghost small">刷新</button>
+              <button id="btn-discover-login" class="ghost small">扫码登录（搜索需要）</button>
+            </div>
+          </div>
+          <div id="hot-list" class="hot-list"></div>
+          <p id="hot-empty" class="empty">正在读取热榜…</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>搜索作品</h2>
+            <span class="hint">搜索接口需要登录态；没登录会直接提示</span>
+          </div>
+          <div class="md-row">
+            <input id="discover-keyword" type="text" spellcheck="false"
+              placeholder="关键词，例：猫咪">
+            <button id="btn-discover-search" class="primary">搜索</button>
+          </div>
+          <div class="profile-bar">
+            <button id="btn-discover-all" class="ghost small">全选</button>
+            <button id="btn-discover-none" class="ghost small">清空</button>
+            <button id="btn-discover-download" class="primary" disabled>下载所选 (0)</button>
+          </div>
+          <p id="discover-hint" class="hint"></p>
+          <div id="discover-grid" class="grid"></div>
+          <div class="profile-tools" style="margin-top:10px">
+            <button id="btn-discover-more" class="ghost small" hidden>加载更多</button>
+          </div>
+        </section>
+      </section>
+
+      <!-- B站 -->
+      <section class="view" data-view-panel="bilibili" hidden>
+        <section class="card paste">
+          <label for="input-bili" id="paste-label-bili">粘贴 B 站视频 / 分P / 番剧 / UP 主主页链接</label>
+          <textarea id="input-bili" rows="5" spellcheck="false"
+            placeholder="视频：https://www.bilibili.com/video/BV1fZJ26mEiY&#10;分P 合集：https://www.bilibili.com/video/BV1xx?p=1&#10;番剧：https://www.bilibili.com/bangumi/play/ss12345&#10;UP 主：https://space.bilibili.com/1157901692"></textarea>
+          <div class="paste-actions">
+            <button id="btn-submit-bili" class="primary">加入队列</button>
+            <span class="hint">分P / 番剧会先弹选集让你勾 · Ctrl / Cmd + Enter 提交</span>
+          </div>
+          <label class="path-label">下载到
+            <input id="out-dir-bili" type="text" spellcheck="false"
+              placeholder="留空 = 设置里的默认目录">
+          </label>
+          <label class="md-check"><input type="checkbox" id="force-redownload-bili">
+            重新下载已存在（覆盖旧文件）</label>
+          <div id="toast-bili" class="toast" hidden></div>
+        </section>
+
+        <section class="card profile" id="episodes-panel" hidden>
+          <div class="list-head">
+            <h2 id="episodes-title">选集</h2>
+            <div class="profile-tools">
+              <button id="btn-episodes-all" class="ghost small">全选</button>
+              <button id="btn-episodes-none" class="ghost small">清空</button>
+              <button id="btn-episodes-close" class="ghost small">关闭</button>
+            </div>
+          </div>
+          <div class="profile-bar">
+            <button id="btn-episodes-current" class="ghost small">只下当前这一集</button>
+            <button id="btn-episodes-download" class="primary" disabled>下载所选 (0)</button>
+          </div>
+          <div id="episodes-list" class="episodes"></div>
+          <p id="episodes-hint" class="hint"></p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>B站任务</h2>
+            <div class="profile-tools">
+              <button id="btn-clear-finished-bili" class="ghost small">清空已结束</button>
+              <button id="btn-open-bili" class="ghost small">打开下载目录</button>
+            </div>
+          </div>
+          <div id="jobs-bili" class="jobs"></div>
+          <p id="empty-bili" class="empty">还没有 B 站任务。粘个链接试试。</p>
+        </section>
+      </section>
+
+      <!-- 作品档案 -->
+      <section class="view" data-view-panel="archive" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>本地作品档案</h2>
+            <div class="profile-tools">
+              <input id="archive-search" class="ghost small" type="text"
+                placeholder="筛选标题 / 作者目录" style="width:200px">
+              <button id="archive-refresh" class="ghost small">刷新</button>
+              <button id="archive-open" class="ghost small">打开下载目录</button>
+            </div>
+          </div>
+          <p id="archive-hint" class="hint">扫描下载目录里的视频和图片</p>
+          <div id="archive-list" class="archive-list"></div>
+          <div class="profile-tools" style="margin-top:10px">
+            <button id="archive-more" class="ghost small" hidden>加载更多</button>
+          </div>
+          <p id="archive-empty" class="empty">下载目录还是空的。</p>
+        </section>
+      </section>
+
+      <!-- 视频转音频 -->
+      <section class="view" data-view-panel="audio" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>已下载的视频</h2>
+            <div class="profile-tools">
+              <select id="audio-format" class="ghost small"></select>
+              <button id="btn-audio-all" class="primary" disabled>全部提取 (0)</button>
+            </div>
+          </div>
+          <p class="hint" id="audio-hint">提取音轨不重编码、不需要 ffmpeg；MP3 / FLAC / WAV 需要设置里的 ffmpeg</p>
+          <div id="audio-sources" class="jobs"></div>
+          <p id="audio-empty" class="empty">还没有可提取的视频，先去「抖音下载」或「B站下载」下一集。</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>转换任务</h2>
+            <div class="profile-tools">
+              <button id="btn-audio-open" class="ghost small">打开输出目录</button>
+            </div>
+          </div>
+          <div id="jobs-audio" class="jobs"></div>
+          <p id="audio-queue-empty" class="empty">还没有转换任务。</p>
+        </section>
+      </section>
+      <!-- 音频转换 -->
+      <section class="view" data-view-panel="convert" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>NCM 解密并转换</h2>
+            <span class="hint">内置纯 Python 解码，不需要 ncmc.exe</span>
+          </div>
+          <div class="md-row">
+            <input id="cv-ncm-path" type="text" spellcheck="false"
+              placeholder="NCM 文件或文件夹，例：D:\Music\某专辑">
+            <select id="cv-ncm-format" class="ghost small"></select>
+            <select id="cv-ncm-quality" class="ghost small">
+              <option value="high">高质量</option>
+              <option value="standard">标准</option>
+              <option value="low">省空间</option>
+            </select>
+            <button id="cv-ncm-go" class="primary">开始解密</button>
+          </div>
+          <div class="md-row">
+            <input id="cv-ncm-out" type="text" spellcheck="false"
+              placeholder="输出目录（留空 = 源文件旁边）">
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>音频互转</h2>
+            <span class="hint">原文件保留 · 转完自动体检</span>
+          </div>
+          <div class="md-row">
+            <input id="cv-path" type="text" spellcheck="false"
+              placeholder="音频文件或文件夹（mp3/wav/flac/m4a/ogg/aac/wma/ape…）">
+            <select id="cv-format" class="ghost small"></select>
+            <select id="cv-quality" class="ghost small">
+              <option value="high">高质量</option>
+              <option value="standard">标准</option>
+              <option value="low">省空间</option>
+            </select>
+            <button id="cv-go" class="primary">开始转换</button>
+          </div>
+          <div class="md-row">
+            <input id="cv-out" type="text" spellcheck="false"
+              placeholder="输出目录（留空 = 源文件旁边）">
+          </div>
+          <p class="hint">MP3 320k / WAV / FLAC / M4A / AAC / OGG / Opus / WMA / AIFF；
+            文件夹会递归处理，同格式自动跳过</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>转换任务</h2>
+            <div class="profile-tools">
+              <button id="cv-retry-failed" class="ghost small">重试失败</button>
+              <button id="cv-clear" class="ghost small">清空已结束</button>
+            </div>
+          </div>
+          <div id="cv-queue" class="md-queue"></div>
+          <p id="cv-empty" class="empty">还没有转换任务。</p>
+        </section>
+      </section>
+
+      <!-- 音乐下载 -->
+      <section class="view" data-view-panel="musicdl" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>找歌</h2>
+            <div class="profile-tools">
+              <button id="md-theme" class="ghost small">换肤</button>
+            </div>
+          </div>
+          <div class="md-row">
+            <select id="md-provider" class="ghost"></select>
+            <input id="md-keyword" type="text" spellcheck="false"
+              placeholder="输入歌曲名或歌手名，回车搜索">
+            <select id="md-limit" class="ghost small">
+              <option value="20">20 条</option>
+              <option value="30" selected>30 条</option>
+              <option value="50">50 条</option>
+            </select>
+            <button id="md-search" class="primary">搜索</button>
+          </div>
+          <div class="md-row">
+            <select id="md-kind" class="ghost small">
+              <option value="album">专辑</option>
+              <option value="playlist">歌单</option>
+            </select>
+            <input id="md-collection" type="text" spellcheck="false"
+              placeholder="专辑 / 歌单 ID 或完整链接，例：36412633">
+            <button id="md-load-collection" class="ghost">读取专辑/歌单</button>
+            <select id="md-rank" class="ghost small">
+              <option value="">排行榜…</option>
+            </select>
+            <button id="md-load-rank" class="ghost">加载榜单</button>
+          </div>
+          <div class="md-row md-quick">
+            <button id="md-ncm-toggle" class="ghost small">导入 NCM</button>
+            <input id="md-ncm-path" type="text" spellcheck="false" hidden
+              placeholder="NCM 文件或文件夹路径，例：D:\Music\某专辑">
+            <button id="md-ncm-go" class="ghost small" hidden>开始解密并转换</button>
+            <span class="hint" id="md-hint">NCM 用内置纯 Python 解密（等价 ncmc），
+              下载后自动转码 + 体检，坏文件不留</span>
+          </div>
+          <div class="md-row md-account">
+            <span class="md-badge" id="md-login-badge">未登录</span>
+            <span id="md-login-name" class="hint">扫码登录后，会员曲 / 320k / 无损可下</span>
+            <button id="md-login" class="ghost small">网易云扫码登录</button>
+            <button id="md-logout" class="ghost small">退出</button>
+          </div>
+        </section>
+
+        <section class="card" id="md-result-card" hidden>
+          <div class="list-head">
+            <div class="md-collection-head">
+              <img id="md-cover" class="md-cover" alt="" hidden>
+              <div>
+                <h2 id="md-title">搜索结果</h2>
+                <p id="md-sub" class="hint"></p>
+              </div>
+            </div>
+            <div class="profile-tools">
+              <button id="md-select-all" class="ghost small">全选</button>
+              <button id="md-select-none" class="ghost small">清空</button>
+              <button id="md-export" class="ghost small">导出 Excel</button>
+            </div>
+          </div>
+          <div class="md-downloadbar">
+            <label class="path-label">保存到
+              <input id="md-out" type="text" spellcheck="false">
+            </label>
+            <select id="md-format" class="ghost small">
+              <option value="mp3">MP3</option>
+              <option value="wav">WAV 无损</option>
+              <option value="flac">FLAC 无损</option>
+              <option value="original">保留原格式</option>
+            </select>
+            <select id="md-quality" class="ghost small">
+              <option value="high">高质量</option>
+              <option value="standard">标准</option>
+              <option value="low">省空间</option>
+            </select>
+            <label class="md-check"><input type="checkbox" id="md-lyrics" checked> 存歌词</label>
+            <button id="md-download" class="primary" disabled>下载所选 (0)</button>
+            <button id="md-download-all" class="ghost small">全部下载</button>
+          </div>
+          <div id="md-list" class="md-table"></div>
+          <p id="md-empty" class="empty">搜点什么，或者读一张专辑。</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>本地转换 MP3 / WAV</h2>
+            <span class="hint">原文件保留 · 转完自动体检</span>
+          </div>
+          <div class="md-row">
+            <input id="md-convert-path" type="text" spellcheck="false"
+              placeholder="音频文件或文件夹路径，例：D:\Music\某专辑">
+            <select id="md-convert-format" class="ghost small">
+              <option value="mp3">转 MP3 320k</option>
+              <option value="wav">转 WAV 无损</option>
+            </select>
+            <button id="md-convert-go" class="primary">开始转换</button>
+          </div>
+          <div class="md-row">
+            <input id="md-convert-out" type="text" spellcheck="false"
+              placeholder="输出目录（留空 = 写到原文件旁边）">
+          </div>
+          <p class="hint">支持 mp3 / wav / flac / m4a / ogg / aac / ape / wma；
+            文件夹会递归处理。转码需要 ffmpeg（设置里可指定路径）</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>下载队列</h2>
+            <div class="profile-tools">
+              <button id="md-retry-failed" class="ghost small">重试失败</button>
+              <button id="md-clear" class="ghost small">清空已结束</button>
+              <button id="md-open" class="ghost small">打开音乐目录</button>
+            </div>
+          </div>
+          <div id="md-queue" class="md-queue"></div>
+          <p id="md-queue-empty" class="empty">还没有音乐任务。</p>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>本地音乐库</h2>
+            <div class="profile-tools">
+              <input id="md-lib-search" class="ghost small" type="text"
+                placeholder="筛选歌名 / 歌手" style="width:180px">
+              <button id="md-lib-refresh" class="ghost small">刷新</button>
+              <button id="md-lib-m3u" class="ghost small">导出 M3U</button>
+              <button id="md-lib-open" class="ghost small">打开目录</button>
+            </div>
+          </div>
+          <p id="md-lib-hint" class="hint">扫描音乐目录里的 mp3 / wav / flac / m4a…</p>
+          <div id="md-lib-list" class="md-table"></div>
+          <div class="profile-tools" style="margin-top:8px">
+            <button id="md-lib-more" class="ghost small" hidden>加载更多</button>
+          </div>
+          <p id="md-lib-empty" class="empty">音乐目录还是空的。</p>
+        </section>
+
+        <div class="md-player" id="md-player" hidden>
+          <div class="md-player-info">
+            <b id="md-now">未在播放</b>
+            <span id="md-now-sub" class="hint"></span>
+          </div>
+          <button id="md-prev" class="ghost small">上一首</button>
+          <button id="md-play" class="primary small">播放</button>
+          <button id="md-next" class="ghost small">下一首</button>
+          <button id="md-mode" class="ghost small">列表循环</button>
+          <button id="md-lyric-toggle" class="ghost small">词</button>
+          <input id="md-seek" type="range" min="0" max="1000" value="0">
+          <span id="md-time" class="hint">00:00 / 00:00</span>
+          <audio id="md-audio" preload="metadata"></audio>
+        </div>
+        <div id="md-lyrics-panel" class="md-lyrics-panel" hidden>
+          <div id="md-lyrics-lines"></div>
+        </div>
+      </section>
+
+      <section class="view" data-view-panel="music" hidden>
+        <section class="card">
+          <div class="list-head">
+            <h2>音乐库体检</h2>
+            <div class="profile-tools">
+              <button id="btn-music-scan" class="primary">扫描目录</button>
+            </div>
+          </div>
+          <label class="path-label">要检查的目录
+            <input id="music-path" type="text" spellcheck="false"
+              placeholder="例如 D:\\Music，会递归检查 mp3 / wav / flac / m4a">
+          </label>
+          <p class="hint">专门抓「有 .mp3 后缀但其实不能播」的文件：平台错误页、0 字节、截断、
+            帧头缺失。转换任务的产物也会自动过这一关</p>
+          <p id="music-summary" class="hint"></p>
+          <div id="music-bad" class="jobs"></div>
+        </section>
+
+        <section class="card">
+          <div class="list-head">
+            <h2>按专辑转换</h2>
+            <div class="profile-tools">
+              <select id="music-format" class="ghost small">
+                <option value="mp3">MP3 320k</option>
+                <option value="wav">WAV（未压缩）</option>
+                <option value="flac">FLAC（无损）</option>
+              </select>
+              <button id="btn-music-convert" class="primary">扫描并转换</button>
+            </div>
+          </div>
+          <p class="hint">读标签里的艺术家 / 专辑 / 轨号，整理成
+            <code>艺术家/专辑/01 标题.mp3</code>；每首转完都会校验能否解码、时长是否正常，
+            坏文件判失败不留残留。需要 ffmpeg</p>
+          <div id="music-albums" class="jobs"></div>
+        </section>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="archive-modal" class="md-modal" hidden>
+  <div class="md-modal-box archive-box">
+    <div class="md-modal-head">
+      <h2 id="archive-title">预览</h2>
+      <button id="archive-close" class="ghost small">关闭</button>
+    </div>
+    <div id="archive-body" class="archive-body"></div>
+  </div>
+</div>
+
+<div id="md-qr" class="md-modal" hidden>
+  <div class="md-modal-box md-qr-box">
+    <div class="md-modal-head">
+      <h2>网易云扫码登录</h2>
+      <button id="md-qr-close" class="ghost small">关闭</button>
+    </div>
+    <div id="md-qr-code" class="md-qr-code"></div>
+    <p id="md-qr-status" class="hint">打开网易云音乐 App → 扫一扫</p>
+  </div>
+</div>
+
+<div id="toast-global" class="toast global" hidden></div>
+
+<div id="md-modal" class="md-modal" hidden>
+  <div class="md-modal-box">
+    <div class="md-modal-head">
+      <h2 id="md-modal-title">歌词</h2>
+      <button id="md-modal-close" class="ghost small">关闭</button>
+    </div>
+    <pre id="md-modal-body" class="md-modal-body"></pre>
+  </div>
+</div>
+
+<aside id="drawer" class="drawer" hidden>
+  <div class="drawer-head">
+    <h2>设置</h2>
+    <button id="btn-close" class="ghost small">关闭</button>
+  </div>
+  <label>保存目录
+    <input id="cfg-output" type="text" spellcheck="false">
+  </label>
+  <label>目录模板
+    <input id="cfg-template" type="text" spellcheck="false"
+      placeholder="{platform}/{author}">
+    <span class="hint">只决定视频放进哪个文件夹。默认「平台/作者」，不再为每条作品单开文件夹</span>
+  </label>
+  <label>文件名模板
+    <input id="cfg-file-template" type="text" spellcheck="false" placeholder="{title}">
+    <span class="hint">视频文件叫什么。可用 {title} {author} {kind} {id} {date} {index}；
+      想一眼看出是谁的就填 {author} - {title}</span>
+  </label>
+  <label>并发下载数
+    <input id="cfg-concurrency" type="number" min="1" max="8">
+  </label>
+  <label>失败重试次数
+    <input id="cfg-retries" type="number" min="0" max="10">
+  </label>
+  <label>B 站画质上限
+    <select id="cfg-bili-qn">
+      <option value="0">最高可用（1080P / 4K / HDR）</option>
+      <option value="112">1080P+ 高码率</option>
+      <option value="80">1080P</option>
+      <option value="64">720P</option>
+      <option value="32">480P</option>
+      <option value="16">360P（省流量）</option>
+    </select>
+    <span class="hint">DASH 的音视频分离流会自动合成单个 MP4，不需要装 ffmpeg</span>
+  </label>
+  <label>Cookie（一般不用手填）
+    <textarea id="cfg-cookie" rows="3" spellcheck="false"
+      placeholder="用上面的「抖音 · 扫码登录」即可自动写入；也可手动粘贴含 sessionid / ttwid 的 Cookie"></textarea>
+  </label>
+  <label>B 站 Cookie（可选，1080P 需要）
+    <textarea id="cfg-bili-cookie" rows="3" spellcheck="false"
+      placeholder="SESSDATA=xxx; bili_jct=xxx; 不填走匿名档位（多数稿件也能到 1080P）"></textarea>
+  </label>
+  <div class="account-box">
+    <div class="account-row">
+      <span class="account-name">抖音</span>
+      <span id="dy-login-state" class="hint">未登录</span>
+      <button id="btn-dy-login" class="ghost small">扫码登录</button>
+      <button id="btn-dy-logout" class="ghost small">退出</button>
+    </div>
+    <div class="account-row">
+      <span class="account-name">B 站</span>
+      <span id="bili-login-state" class="hint">未登录</span>
+      <button id="btn-bili-login" class="ghost small">扫码登录</button>
+      <button id="btn-bili-logout" class="ghost small">退出</button>
+    </div>
+    <p class="hint">扫码后自动提取 Cookie 存到本机 data/config.json；大会员番剧 / 影视不在支持范围。</p>
+  </div>
+  <label>实况图（Live Photo）保存为
+    <select id="cfg-live">
+      <option value="video">只要视频（.mp4，几秒那段）</option>
+      <option value="both">图片 + 视频</option>
+      <option value="image">只要图片（旧行为）</option>
+    </select>
+    <span class="hint">抖音的实况照片是「一张图 + 一段短视频」，默认存那段 mp4</span>
+  </label>
+  <label>提取音频的默认格式
+    <select id="cfg-audio-preset">
+      <option value="audio_m4a">无损 m4a（不重编码，不需要 ffmpeg）</option>
+      <option value="audio_mp3">MP3 320k（需要 ffmpeg）</option>
+      <option value="audio_mp3_192">MP3 192k（需要 ffmpeg）</option>
+      <option value="audio_flac">FLAC 无损（需要 ffmpeg）</option>
+      <option value="audio_wav">WAV 未压缩（需要 ffmpeg）</option>
+    </select>
+    <span class="hint">「视频转音频」页按这个格式提取。m4a 是纯 Python 实现，永远可用</span>
+  </label>
+  <label>音乐保存目录
+    <input id="cfg-music-dir" type="text" spellcheck="false"
+      placeholder="默认 我的音乐/DouyinKit">
+    <span class="hint">「音乐下载」按 歌手/专辑/歌名 落盘</span>
+  </label>
+  <label>音乐默认格式
+    <select id="cfg-music-format">
+      <option value="mp3">MP3 320k</option>
+      <option value="wav">WAV 无损</option>
+      <option value="flac">FLAC 无损</option>
+      <option value="original">保留原格式</option>
+    </select>
+  </label>
+  <label>音乐并发下载数
+    <input id="cfg-music-concurrency" type="number" min="1" max="6">
+  </label>
+  <label>音乐平台 Cookie（会员曲 / 无损）
+    <select id="cfg-music-cookie-provider">
+      <option value="netease">网易云</option>
+      <option value="qq">QQ音乐</option>
+      <option value="kugou">酷狗</option>
+      <option value="kuwo">酷我</option>
+    </select>
+    <textarea id="cfg-music-cookie" rows="2" spellcheck="false"
+      placeholder="MUSIC_U=... / qqmusic_key=...；网易云可直接用「扫码登录」"></textarea>
+    <span class="hint">选平台后粘贴对应 Cookie；保存后立即生效。会员曲、320k、无损都靠它</span>
+  </label>
+  <label>ffmpeg 路径（可选）
+    <input id="cfg-ffmpeg" type="text" spellcheck="false"
+      placeholder="留空则用 PATH 里的 ffmpeg；也可以填完整路径到 ffmpeg.exe">
+    <span class="hint">转 MP3 / FLAC / WAV 才需要；提取 m4a 不需要</span>
+  </label>
+  <label class="md-check"><input type="checkbox" id="cfg-clear-history">
+    关闭应用时清空已完成/失败的任务记录（文件保留）</label>
+  <label class="md-check"><input type="checkbox" id="cfg-auto-fallback">
+    抖音分享页失败时自动改用浏览器兜底</label>
+  <label>规则热更新地址（可选）
+    <input id="cfg-rules-url" type="text" spellcheck="false"
+      placeholder="https://example.com/douyinkit-rules.json">
+    <button id="btn-rules-update" class="ghost small">立即更新</button>
+    <span id="rules-status" class="hint"></span>
+  </label>
+  <div class="drawer-actions">
+    <button id="btn-save" class="primary">保存</button>
+    <button id="btn-restart" class="ghost">重启应用</button>
+    <span id="free" class="hint"></span>
+  </div>
+  <p class="tip">Cookie 只保存在本机 <code>data/config.json</code>，不会上传。</p>
+</aside>
+
+<script src="/vendor/qrcode.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

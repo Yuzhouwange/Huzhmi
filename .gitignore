@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 运行时数据（配置里有 Cookie，别提交）
+data/
+
+# 打包产物
+dist/
+build/
+*.spec
+.build-venv/
+
+# 本地临时
+.venv/
+.vscode/
+.idea/
+Thumbs.db
+
+# 前端测试依赖
+tests/ui/node_modules/
+
