@@ -1,4 +1,4 @@
-"""`mp4mux` 的单元测试：用自己拼出来的最小 fMP4 验证重新装箱结果（不联网）。
+﻿"""`mp4mux` 的单元测试：用自己拼出来的最小 fMP4 验证重新装箱结果（不联网）。
 
 真实 B 站分片是 H.264/AAC 的 fMP4，但重新装箱只关心「box 结构 + 样本表」，
 所以这里用假样本数据就能覆盖：轨 ID 去重、stts/stsc/stsz/stco 一致性、
@@ -12,7 +12,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import mp4mux
+from huzhmi import mp4mux
 
 
 def box(typ: bytes, *payload: bytes) -> bytes:

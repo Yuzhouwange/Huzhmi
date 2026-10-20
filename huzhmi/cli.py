@@ -1,4 +1,4 @@
-"""命令行入口：批量下载，不启动网页。"""
+﻿"""命令行入口：批量下载，不启动网页。"""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ _STATUS = {
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="douyinkit", description="抖音无水印视频/图集下载（命令行）"
+        prog="huzhmi", description="抖音无水印视频/图集下载（命令行）"
     )
     parser.add_argument("target", nargs="+", help="链接、分享文案，或含链接的 .txt 文件")
     parser.add_argument("-o", "--output", help="输出目录（覆盖配置）")

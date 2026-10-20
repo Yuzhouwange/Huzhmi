@@ -1,4 +1,4 @@
-/* DouyinKit 前端：轮询 /api/bootstrap，按 id 增量更新 DOM */
+﻿/* Huzhmi 前端：轮询 /api/bootstrap，按 id 增量更新 DOM */
 
 const $ = (id) => document.getElementById(id);
 const rows = new Map(); // job_id -> {el, refs}

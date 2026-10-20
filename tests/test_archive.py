@@ -1,4 +1,4 @@
-"""作品档案：扫描 / 筛选 / 删除。"""
+﻿"""作品档案：扫描 / 筛选 / 删除。"""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import archive
+from huzhmi import archive
 
 
 class ArchiveTest(unittest.TestCase):

@@ -1,4 +1,4 @@
-"""音乐体检 + 转换产物校验的测试。"""
+﻿"""音乐体检 + 转换产物校验的测试。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import media
+from huzhmi import media
 
 
 def wav_bytes(seconds: float = 2.0, rate: int = 44100, channels: int = 2) -> bytes:
@@ -116,8 +116,8 @@ class TransformVerificationTest(unittest.TestCase):
         import time
         from pathlib import Path
 
-        from douyinkit.engine import Engine
-        from douyinkit.store import Store
+        from huzhmi.engine import Engine
+        from huzhmi.store import Store
 
         class FakeTransform:
             label = "假转换"

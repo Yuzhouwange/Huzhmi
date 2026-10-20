@@ -1,4 +1,4 @@
-"""音乐库：标签读取、专辑分组、批量转换任务。"""
+﻿"""音乐库：标签读取、专辑分组、批量转换任务。"""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import time
 import unittest
 from pathlib import Path
 
-from douyinkit import media
-from douyinkit.media import library, tags
+from huzhmi import media
+from huzhmi.media import library, tags
 
 
 def id3v2(title: str, artist: str, album: str, track: str = "3") -> bytes:
@@ -136,8 +136,8 @@ class LibraryTest(unittest.TestCase):
 
 class ConvertJobTest(unittest.TestCase):
     def test_submit_convert_creates_job(self) -> None:
-        from douyinkit.engine import Engine
-        from douyinkit.store import Store
+        from huzhmi.engine import Engine
+        from huzhmi.store import Store
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -1,4 +1,4 @@
-"""打包态的路径判断（不真的打包，模拟 sys.frozen）。"""
+﻿"""打包态的路径判断（不真的打包，模拟 sys.frozen）。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import paths
+from huzhmi import paths
 
 
 class FrozenPathTest(unittest.TestCase):
@@ -37,7 +37,7 @@ class FrozenPathTest(unittest.TestCase):
         exe_dir.mkdir()
         sys.frozen = True  # type: ignore[attr-defined]
         sys._MEIPASS = str(bundle)  # type: ignore[attr-defined]
-        sys.executable = str(exe_dir / "DouyinKit.exe")
+        sys.executable = str(exe_dir / "Huzhmi.exe")
         return bundle
 
     def test_dev_mode_uses_repo(self) -> None:
@@ -66,12 +66,12 @@ class FrozenPathTest(unittest.TestCase):
         self._freeze()
         custom = self.tmp / "custom-data"
         import os
-        os.environ["DOUZY_DATA_DIR"] = str(custom)
+        os.environ["HUZHMI_DATA_DIR"] = str(custom)
         try:
             self.assertEqual(paths.data_dir(), custom)
             self.assertTrue(custom.is_dir())
         finally:
-            os.environ.pop("DOUZY_DATA_DIR", None)
+            os.environ.pop("HUZHMI_DATA_DIR", None)
 
 
 if __name__ == "__main__":

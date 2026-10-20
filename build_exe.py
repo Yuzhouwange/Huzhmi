@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-"""把 DouyinKit 打包成单文件 exe（PyInstaller）。
+﻿#!/usr/bin/env python3
+"""把 Huzhmi 打包成单文件 exe（PyInstaller）。
 
-    python build_exe.py              # 打包到 dist/DouyinKit.exe（无控制台窗口）
+    python build_exe.py              # 打包到 dist/Huzhmi.exe（无控制台窗口）
     python build_exe.py --console    # 保留控制台，方便看报错
     python build_exe.py --no-venv    # 直接用当前 Python 环境里的 PyInstaller
     python build_exe.py --onedir     # 目录版（启动更快，便于排错）
@@ -65,7 +65,7 @@ def build(onedir: bool, with_venv: bool, clean: bool,
     args = [
         str(python), "-m", "PyInstaller",
         str(ROOT / "run.py"),
-        "--name", "DouyinKit",
+        "--name", "Huzhmi",
         mode,
         # 默认不带控制台：双击就是一个干净的独立窗口（日志写 data/log.txt）
         "--console" if console else "--windowed",
@@ -76,7 +76,7 @@ def build(onedir: bool, with_venv: bool, clean: bool,
         # 前端页面必须随包走；运行时从 sys._MEIPASS/web 读
         "--add-data", f"{ROOT / 'web'}{';' if sys.platform == 'win32' else ':'}web",
         # 平台适配器是运行时按名字取的，显式收集一遍更保险
-        "--collect-submodules", "douyinkit",
+        "--collect-submodules", "huzhmi",
     ]
     if icon.is_file():
         args += ["--icon", str(icon)]
@@ -86,9 +86,9 @@ def build(onedir: bool, with_venv: bool, clean: bool,
     print("[build] " + " ".join(args[1:]))
     subprocess.run(args, check=True)
 
-    target = DIST / ("DouyinKit/DouyinKit.exe" if onedir else "DouyinKit.exe")
+    target = DIST / ("Huzhmi/Huzhmi.exe" if onedir else "Huzhmi.exe")
     if not target.is_file():  # 非 Windows 的可执行文件名不带后缀
-        target = DIST / ("DouyinKit/DouyinKit" if onedir else "DouyinKit")
+        target = DIST / ("Huzhmi/Huzhmi" if onedir else "Huzhmi")
     if not target.is_file():
         raise SystemExit("[build] 没找到产物，检查上面的 PyInstaller 输出")
     return target
@@ -110,7 +110,7 @@ def main() -> None:
     print("[build] 双击运行（独立窗口），或：\n"
           f'        "{target}" --no-browser --port 8765   # 只起服务')
     print("[build] 数据目录：exe 同级 data/（不可写时退回 "
-          "%LOCALAPPDATA%\\DouyinKit\\data）")
+          "%LOCALAPPDATA%\\Huzhmi\\data）")
 
 
 if __name__ == "__main__":

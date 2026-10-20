@@ -1,10 +1,10 @@
-"""TikTok 平台适配：链接识别、去重键、下载请求头。"""
+﻿"""TikTok 平台适配：链接识别、去重键、下载请求头。"""
 
 from __future__ import annotations
 
 import unittest
 
-from douyinkit import platforms
+from huzhmi import platforms
 
 
 class TikTokTest(unittest.TestCase):

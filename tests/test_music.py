@@ -1,4 +1,4 @@
-"""音乐模块：AES / NCM 解密 / 平台解析 / 队列路径 / Excel 导出。"""
+﻿"""音乐模块：AES / NCM 解密 / 平台解析 / 队列路径 / Excel 导出。"""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import zipfile
 from pathlib import Path
 from xml.etree import ElementTree
 
-from douyinkit.music import aes, ncm, providers, service, xlsx
-from douyinkit.store import Store
+from huzhmi.music import aes, ncm, providers, service, xlsx
+from huzhmi.store import Store
 
 
 def _pad(data: bytes, block: int = 16) -> bytes:
@@ -106,7 +106,7 @@ class ProviderTest(unittest.TestCase):
         self.assertEqual(providers.Provider._cookie_value("", "uin"), "")
 
     def test_netease_login_empty_account(self):
-        from douyinkit.music import login
+        from huzhmi.music import login
 
         info = login.NeteaseLogin().account("")
         self.assertFalse(info["logged_in"])
@@ -283,7 +283,7 @@ class LibraryTest(unittest.TestCase):
         path.write_bytes(frame * 40)
 
     def test_scan_lyrics_m3u_delete(self):
-        from douyinkit.music import library
+        from huzhmi.music import library
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -308,7 +308,7 @@ class LibraryTest(unittest.TestCase):
                 library.delete(root, root.parent / "outside.mp3")
 
     def test_scan_missing_root(self):
-        from douyinkit.music import library
+        from huzhmi.music import library
 
         with self.assertRaises(FileNotFoundError):
             library.scan("D:/definitely-not-exists")

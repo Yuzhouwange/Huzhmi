@@ -1,11 +1,11 @@
-"""封面代理取 URL 的回归测试：不能对已解码的签名 URL 再解一次码。"""
+﻿"""封面代理取 URL 的回归测试：不能对已解码的签名 URL 再解一次码。"""
 
 from __future__ import annotations
 
 import unittest
 import urllib.parse
 
-from douyinkit.server import thumb_target
+from huzhmi.server import thumb_target
 
 
 class ThumbTargetTest(unittest.TestCase):

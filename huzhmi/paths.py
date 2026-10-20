@@ -1,4 +1,4 @@
-"""开发态 / 打包态（PyInstaller）的路径判断。
+﻿"""开发态 / 打包态（PyInstaller）的路径判断。
 
 打包成 exe 之后有两条完全不同的路径：
 
@@ -15,7 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-APP_NAME = "DouyinKit"
+APP_NAME = "Huzhmi"
 
 
 def is_frozen() -> bool:
@@ -44,15 +44,15 @@ def _writable(path: Path) -> bool:
 
 
 def data_dir() -> Path:
-    """可写数据目录（config.json / douyinkit.db）。
+    """可写数据目录（config.json / huzhmi.db）。
 
     优先级：
-      1. `DOUZY_DATA_DIR` 环境变量（测试和自定义部署用）
+      1. `HUZHMI_DATA_DIR` 环境变量（测试和自定义部署用）
       2. 打包态：exe 同级的 `data/`（便携，拷走整个文件夹就能带走数据）
-      3. 打包态：`%LOCALAPPDATA%\\DouyinKit\\data`（exe 放在 Program Files 这种只读位置时）
+      3. 打包态：`%LOCALAPPDATA%\\Huzhmi\\data`（exe 放在 Program Files 这种只读位置时）
       4. 开发态：仓库下的 `data/`
     """
-    override = os.environ.get("DOUZY_DATA_DIR")
+    override = os.environ.get("HUZHMI_DATA_DIR")
     if override:
         path = Path(override).expanduser()
         path.mkdir(parents=True, exist_ok=True)
@@ -70,6 +70,6 @@ def data_dir() -> Path:
     return Path(__file__).resolve().parent.parent / "data"
 
 
-def temp_dir(prefix: str = "douyinkit-") -> Path:
+def temp_dir(prefix: str = "huzhmi-") -> Path:
     """临时目录（打包态不要用仓库路径）。"""
     return Path(tempfile.mkdtemp(prefix=prefix))

@@ -1,4 +1,4 @@
-"""音频文件体检：判断「是不是真的能播」，而不是只看后缀。
+﻿"""音频文件体检：判断「是不是真的能播」，而不是只看后缀。
 
 之所以要这层：音乐下载最常见的坏法不是下载失败，而是**把平台返回的错误页
 （HTML/JSON）原样写成 .mp3**——文件有几百 KB、后缀也对，播放器一打开就报错。
@@ -341,7 +341,7 @@ def report(scan_result: dict) -> str:
     return "\n".join(lines)
 
 
-if __name__ == "__main__":  # python -m douyinkit.media.verify <目录>
+if __name__ == "__main__":  # python -m huzhmi.media.verify <目录>
     import sys
 
     result = scan(sys.argv[1] if len(sys.argv) > 1 else ".")

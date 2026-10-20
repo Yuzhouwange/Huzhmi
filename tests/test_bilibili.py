@@ -1,10 +1,10 @@
-"""B 站链接识别与去重键的单元测试（不联网）。"""
+﻿"""B 站链接识别与去重键的单元测试（不联网）。"""
 
 from __future__ import annotations
 
 import unittest
 
-from douyinkit import bilibili
+from huzhmi import bilibili
 
 
 class BiliUrlTest(unittest.TestCase):
@@ -72,7 +72,7 @@ class BiliUrlTest(unittest.TestCase):
             self.assertFalse(bilibili.is_space_url(url), url)
 
     def test_platform_adapter_exposes_profile(self) -> None:
-        from douyinkit.platforms import by_name
+        from huzhmi.platforms import by_name
         platform = by_name("bilibili")
         self.assertTrue(platform.is_profile_url("https://m.bilibili.com/space/123456"))
         self.assertEqual(platform.describe()["profile_url"],
@@ -224,7 +224,7 @@ class DeletedVideoTest(unittest.TestCase):
         return calls
 
     def test_403_with_missing_archive_says_deleted(self) -> None:
-        from douyinkit.net import UA  # noqa: F401 - 只是确认模块可用
+        from huzhmi.net import UA  # noqa: F401 - 只是确认模块可用
         calls = self._patch(
             {"code": -403, "message": "访问权限不足"},
             stat_raises=bilibili.BiliError("请求 B 站接口失败：HTTP Error 404: Not Found"),
@@ -341,7 +341,7 @@ class EpisodesTest(unittest.TestCase):
         self.assertEqual(result["current"], 3)
 
     def test_platform_without_episodes(self) -> None:
-        from douyinkit.platforms import by_name
+        from huzhmi.platforms import by_name
         result = by_name("douyin").episodes("https://www.douyin.com/video/1", {})
         self.assertFalse(result["has_multi"])
         self.assertEqual(result["episodes"], [])
@@ -530,8 +530,8 @@ class RetryFailedTest(unittest.TestCase):
     def setUp(self) -> None:
         import tempfile
         from pathlib import Path
-        from douyinkit.engine import Engine
-        from douyinkit.store import Store
+        from huzhmi.engine import Engine
+        from huzhmi.store import Store
 
         self._tmp = tempfile.TemporaryDirectory()
         self.store = Store(str(Path(self._tmp.name) / "t.db"))

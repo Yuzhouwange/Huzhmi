@@ -1,4 +1,4 @@
-"""规则热更新：默认值合并、非法目标过滤、落盘。"""
+﻿"""规则热更新：默认值合并、非法目标过滤、落盘。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import rules
+from huzhmi import rules
 
 
 class RulesTest(unittest.TestCase):

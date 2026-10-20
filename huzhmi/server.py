@@ -32,7 +32,7 @@ from .store import Store
 # 打包后 web/ 在 _MEIPASS 里，开发时在仓库根目录
 WEB_DIR = resource_dir() / "web"
 
-# 封面代理只允许这些图床，避免变成任意 URL 转发器
+# 封面代理允允许这些图床，避免变成任意 URL 转发器
 THUMB_HOSTS = (
     "hdslb.com",
     "douyinpic.com",
@@ -139,7 +139,7 @@ def _text(handler: BaseHTTPRequestHandler, body: bytes, ctype: str,
 
 def make_handler(app: App):
     class Handler(BaseHTTPRequestHandler):
-        server_version = f"DouyinKit/{__version__}"
+        server_version = f"Huzhmi/{__version__}"
 
         def log_message(self, fmt: str, *args) -> None:  # 静音，避免刷屏
             return
@@ -160,7 +160,7 @@ def make_handler(app: App):
                     pass
 
         def _guard(self) -> bool:
-            """只允许本机页面访问；挡住 DNS rebinding / 跨站页面。"""
+            """只允许本地页面访问；挡住 DNS rebinding / 跨站页面。"""
             host = (self.headers.get("Host") or "").split(":")[0].strip("[]").lower()
             if host and host not in ("127.0.0.1", "localhost", "::1"):
                 _json(self, {"error": "forbidden host"}, 403)
@@ -801,7 +801,7 @@ def make_handler(app: App):
             return None
 
         def _stream(self, query: dict) -> None:
-            """给播放器用：支持 Range 的本地文件流（只允许音乐/下载目录）。"""
+            """给播放器用：支持 Range 的本地文件流（允允许音乐/下载目录）。"""
             cfg = config_mod.load()
             jid = (query.get("id") or [""])[0]
             raw = (query.get("path") or [""])[0]
@@ -944,7 +944,7 @@ def serve(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True,
     """启动服务，返回是否请求了重启。"""
     server, real_port = build_server(host, port)
     url = f"http://{host}:{real_port}/"
-    print(f"DouyinKit {__version__} 已启动：{url}", flush=True)
+    print(f"Huzhmi {__version__} 已启动：{url}", flush=True)
     print(f"数据目录：{config_mod.DATA_DIR}", flush=True)
 
     thread = threading.Thread(
@@ -993,7 +993,7 @@ def serve(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True,
         server.server_close()
         server.app.engine.shutdown()  # type: ignore[attr-defined]
         server.app.music.shutdown()   # type: ignore[attr-defined]
-        # 关闭时按配置清理任务历史：只删记录，下载好的文件不动；暂停中的保留
+        # 关闭时按配置清理任务历史：允删记录，下载好的文件不动；暂停中的保留
         try:
             if config_mod.load().get("clear_history_on_exit", True):
                 server.app.store.clear_finished()

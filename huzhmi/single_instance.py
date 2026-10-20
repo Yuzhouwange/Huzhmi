@@ -1,4 +1,4 @@
-"""单实例互斥：同一个用户只允许跑一个 DouyinKit。
+﻿"""单实例互斥：同一个用户只允许跑一个 Huzhmi。
 
 Windows 用命名 Mutex（跨进程、随进程退出自动释放）；其他平台退回文件锁。
 """
@@ -10,7 +10,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-_NAME = "Local\\DouyinKit.SingleInstance"
+_NAME = "Local\\Huzhmi.SingleInstance"
 _handle = None
 _lock_file = None
 
@@ -36,7 +36,7 @@ def acquire() -> bool:
     try:
         import fcntl
 
-        path = Path(tempfile.gettempdir()) / "douyinkit.lock"
+        path = Path(tempfile.gettempdir()) / "huzhmi.lock"
         _lock_file = path.open("w")
         fcntl.flock(_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         _lock_file.write(str(os.getpid()))

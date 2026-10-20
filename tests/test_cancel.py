@@ -1,4 +1,4 @@
-"""取消任务：任意状态可取消，正在下载的要连带删掉已下载部分。"""
+﻿"""取消任务：任意状态可取消，正在下载的要连带删掉已下载部分。"""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import time
 import unittest
 from pathlib import Path
 
-from douyinkit.engine import Engine
-from douyinkit.store import Store
+from huzhmi.engine import Engine
+from huzhmi.store import Store
 
 URL = "https://www.douyin.com/video/7304228124479262006"
 

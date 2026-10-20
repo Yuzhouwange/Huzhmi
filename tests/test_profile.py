@@ -1,11 +1,11 @@
-"""主页链接识别 / sec_uid 解析的单元测试（不启动浏览器）。"""
+﻿"""主页链接识别 / sec_uid 解析的单元测试（不启动浏览器）。"""
 
 from __future__ import annotations
 
 import unittest
 
-from douyinkit import bridge
-from douyinkit.engine import extract_urls, safe_dirname
+from huzhmi import bridge
+from huzhmi.engine import extract_urls, safe_dirname
 
 SEC = "MS4wLjABAAAAx5HzYzC9dIm19hUfeG3SOpXpV6Odko_W7hIZTsfRjUe5p1g0d4rqe8MwjXT_qVcx"
 

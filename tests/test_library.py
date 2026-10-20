@@ -1,4 +1,4 @@
-"""文件名模板、重名处理、老库拍平、配置升级的单元测试。"""
+﻿"""文件名模板、重名处理、老库拍平、配置升级的单元测试。"""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import config as config_mod
-from douyinkit import library
-from douyinkit.engine import (
+from huzhmi import config as config_mod
+from huzhmi import library
+from huzhmi.engine import (
     DEFAULT_FILE_TEMPLATE,
     DEFAULT_TEMPLATE,
     build_file_stem,

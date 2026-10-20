@@ -1,4 +1,4 @@
-"""重启恢复：上次没跑完的任务要回到队列，而不是标成失败。"""
+﻿"""重启恢复：上次没跑完的任务要回到队列，而不是标成失败。"""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ import time
 import unittest
 from pathlib import Path
 
-from douyinkit.engine import Engine
-from douyinkit.store import Store
+from huzhmi.engine import Engine
+from huzhmi.store import Store
 
 
 class RecoverTest(unittest.TestCase):

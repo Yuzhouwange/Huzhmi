@@ -1,4 +1,4 @@
-"""平台分离的回归测试。
+﻿"""平台分离的回归测试。
 
 两个要求：
   1. 平台适配器都满足同一套接口，上层不需要知道是谁；
@@ -12,9 +12,9 @@ import inspect
 import pathlib
 import unittest
 
-from douyinkit import bilibili, douyin, engine, platforms
-from douyinkit.net import PlatformError
-from douyinkit.platforms import base
+from huzhmi import bilibili, douyin, engine, platforms
+from huzhmi.net import PlatformError
+from huzhmi.platforms import base
 
 PKG_DIR = pathlib.Path(platforms.__file__).resolve().parent
 
@@ -134,7 +134,7 @@ class SeparationTest(unittest.TestCase):
             self.assertNotIn(needle, src)
 
     def test_shared_helpers_live_in_net(self) -> None:
-        from douyinkit import net
+        from huzhmi import net
         self.assertIs(douyin.decode_text, net.decode_text)
         self.assertIs(bilibili.decode_text, net.decode_text)
         self.assertEqual(douyin.UA, bilibili.UA)

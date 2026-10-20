@@ -1,4 +1,4 @@
-"""配置读写：data/config.json。"""
+﻿"""配置读写：data/config.json。"""
 
 from __future__ import annotations
 
@@ -11,10 +11,10 @@ from .paths import data_dir, resource_dir
 BASE_DIR = resource_dir()
 DATA_DIR = data_dir()
 CONFIG_PATH = DATA_DIR / "config.json"
-DB_PATH = DATA_DIR / "douyinkit.db"
+DB_PATH = DATA_DIR / "huzhmi.db"
 
 DEFAULTS = {
-    "output_dir": str(Path.home() / "Downloads" / "DouyinKit"),
+    "output_dir": str(Path.home() / "Downloads" / "Huzhmi"),
     # 平台/作者 两层；作品直接以文件名落到作者目录，不再单开一层文件夹
     "folder_template": "{platform}/{author}",
     "file_template": "{title}",
@@ -38,7 +38,7 @@ DEFAULTS = {
     # 规则热更新地址（JSON）：启动时超过 24 小时会自动拉一次
     "rules_url": "",
     # 音乐下载
-    "music_dir": str(Path.home() / "Music" / "DouyinKit"),
+    "music_dir": str(Path.home() / "Music" / "Huzhmi"),
     "music_format": "mp3",          # mp3 / wav / flac / original
     "music_concurrency": 3,
     "music_save_lyrics": True,

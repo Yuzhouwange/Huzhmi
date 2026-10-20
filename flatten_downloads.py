@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """把老库里的视频从「标题文件夹」里搬到上一层。
 
     python flatten_downloads.py "E:\\视频\\抖音\\可爱的光头强"           # 只看计划
@@ -18,7 +18,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from douyinkit.library import apply_moves, plan_flatten, prune_empty_dirs
+from huzhmi.library import apply_moves, plan_flatten, prune_empty_dirs
 
 
 def human(path: Path) -> str:

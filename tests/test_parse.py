@@ -1,12 +1,12 @@
-"""解析器单元测试：不联网，用构造的分享页 HTML 验证。"""
+﻿"""解析器单元测试：不联网，用构造的分享页 HTML 验证。"""
 
 from __future__ import annotations
 
 import json
 import unittest
 
-from douyinkit import douyin
-from douyinkit.engine import extract_urls, safe_dirname
+from huzhmi import douyin
+from huzhmi.engine import extract_urls, safe_dirname
 
 
 def _page(item: dict) -> bytes:
@@ -163,7 +163,7 @@ class ImageNamingTest(unittest.TestCase):
     """多张图要带序号，不能靠「(2)(3)」这种重名后缀。"""
 
     def test_multi_image_stems_are_numbered(self) -> None:
-        from douyinkit.engine import build_file_stem
+        from huzhmi.engine import build_file_stem
 
         meta = {"title": "图集作品", "author": "作者", "kind": "images",
                 "aweme_id": "1", "created": 0}
@@ -220,7 +220,7 @@ class LivePhotoTest(unittest.TestCase):
 
     def test_adapter_swaps_in_live_from_detail(self) -> None:
         """分享页没有实况信息时，适配器用详情接口补上。"""
-        from douyinkit import platforms
+        from huzhmi import platforms
 
         adapter = platforms.by_name("douyin")
         original_extract = douyin.extract
@@ -245,7 +245,7 @@ class LivePhotoTest(unittest.TestCase):
                     return FakeBridge()
 
         douyin.extract = fake_extract
-        import douyinkit.platforms.douyin_platform as dp
+        import huzhmi.platforms.douyin_platform as dp
         original_get = dp.bridge_mod
         dp.bridge_mod = FakeBridgeModule
         try:

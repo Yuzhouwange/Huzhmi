@@ -1,4 +1,4 @@
-"""音乐下载与转换：平台搜索 / 专辑歌单 / NCM 解密 / 批量下载 / 转 MP3·WAV。
+﻿"""音乐下载与转换：平台搜索 / 专辑歌单 / NCM 解密 / 批量下载 / 转 MP3·WAV。
 
 对外只暴露四块：
 
@@ -7,7 +7,7 @@
 * `service`   —— 下载队列（校验、转码、歌词、断点续跑）；
 * `xlsx`      —— 导出 Excel（不依赖 openpyxl）。
 
-老的「音乐体检 / 按专辑转换」还在 `douyinkit.media`，两边共用 ffmpeg 和体检逻辑。
+老的「音乐体检 / 按专辑转换」还在 `huzhmi.media`，两边共用 ffmpeg 和体检逻辑。
 """
 
 from . import library, login, ncm, providers, service, xlsx  # noqa: F401

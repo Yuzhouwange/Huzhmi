@@ -1,4 +1,4 @@
-"""可热更新的解析规则。
+﻿"""可热更新的解析规则。
 
 `data/rules.json` 里的配置优先于内置默认值；改完立即生效，不用重新打包。
 只允许覆盖已知字段，避免一份坏规则把程序打瘫。
@@ -85,7 +85,7 @@ def save(patch: dict) -> dict:
 def fetch(url: str, timeout: float = 20) -> dict:
     """从一个 JSON 地址热更新规则（只接受已知字段）。"""
     request = urllib.request.Request(
-        str(url), headers={"User-Agent": "DouyinKit-Rules/1.0"})
+        str(url), headers={"User-Agent": "Huzhmi-Rules/1.0"})
     with urllib.request.urlopen(request, timeout=timeout) as response:
         raw = response.read(512 * 1024)
     data = json.loads(raw.decode("utf-8", "replace"))

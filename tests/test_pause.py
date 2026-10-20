@@ -1,4 +1,4 @@
-"""暂停 / 继续 / 暂停整个队列的单元测试（不联网，用假的下载器）。"""
+﻿"""暂停 / 继续 / 暂停整个队列的单元测试（不联网，用假的下载器）。"""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import time
 import unittest
 from pathlib import Path
 
-from douyinkit.engine import Cancelled, Engine, Paused
-from douyinkit.store import Store
+from huzhmi.engine import Cancelled, Engine, Paused
+from huzhmi.store import Store
 
 URL = "https://www.douyin.com/video/7304228124479262006"
 

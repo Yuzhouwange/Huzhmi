@@ -1,11 +1,11 @@
-"""文件名清洗与文本解码的单元测试。"""
+﻿"""文件名清洗与文本解码的单元测试。"""
 
 from __future__ import annotations
 
 import unittest
 
-from douyinkit.douyin import decode_text
-from douyinkit.engine import safe_dirname
+from huzhmi.douyin import decode_text
+from huzhmi.engine import safe_dirname
 
 
 class SafeDirnameTest(unittest.TestCase):

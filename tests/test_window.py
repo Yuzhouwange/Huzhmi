@@ -1,4 +1,4 @@
-"""窗口模式与一键暂停的单元测试。"""
+﻿"""窗口模式与一键暂停的单元测试。"""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import window
+from huzhmi import window
 
 
 class WindowArgsTest(unittest.TestCase):

@@ -1,4 +1,4 @@
-"""极简 CDP 客户端：起一个 headless 浏览器，在页面上下文里执行 JS。
+﻿"""极简 CDP 客户端：起一个 headless 浏览器，在页面上下文里执行 JS。
 
 不依赖 selenium/playwright/websocket-client，全部标准库实现：
   - WebSocket 握手 + 帧编解码（客户端掩码）
@@ -175,7 +175,7 @@ class Browser:
             raise CDPError("没找到 Edge / Chrome，无法启动页面桥。")
         self.exe = exe
         self.port = _free_port()
-        self.profile = tempfile.mkdtemp(prefix="douyinkit-edge-")
+        self.profile = tempfile.mkdtemp(prefix="huzhmi-edge-")
         self.keep_profile = keep_profile
         args = [
             exe,

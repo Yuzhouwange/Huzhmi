@@ -1,4 +1,4 @@
-"""页面桥的纯逻辑测试：主页文案解析、Cookie 解析、被第一页卡住时的判定。
+﻿"""页面桥的纯逻辑测试：主页文案解析、Cookie 解析、被第一页卡住时的判定。
 
 不连浏览器：`user_posts` 的浏览器交互用假对象替换，只验证判定与返回值。
 """
@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import unittest
 
-from douyinkit import bridge
-from douyinkit.cdp import parse_cookie_string
+from huzhmi import bridge
+from huzhmi.cdp import parse_cookie_string
 
 
 class ProfileTextTest(unittest.TestCase):

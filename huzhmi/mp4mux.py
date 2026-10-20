@@ -1,4 +1,4 @@
-"""把 B 站 DASH 的 fMP4（`.m4s`）音视频合成一个普通 MP4。
+﻿"""把 B 站 DASH 的 fMP4（`.m4s`）音视频合成一个普通 MP4。
 
 为什么不调 ffmpeg：
   - 本项目承诺「纯标准库、不要 pip 装东西」，ffmpeg 也不一定在用户机器上；
@@ -604,7 +604,7 @@ def _build_trak(track: _Track, chunk_offsets: list[int], movie_timescale: int,
                      struct.pack(">IIIIHH", 0, 0, track.timescale,
                                  track.duration, 0x55C4, 0))
     hdlr = _full_box(b"hdlr", 0, 0, b"\x00" * 4, track.kind, b"\x00" * 12,
-                     b"DouyinKit\x00")
+                     b"Huzhmi\x00")
     if track.is_video:
         header_box = _full_box(b"vmhd", 0, 1, struct.pack(">HHHH", 0, 0, 0, 0))
     else:

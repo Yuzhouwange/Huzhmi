@@ -1,4 +1,4 @@
-"""媒体转换层：注册表、纯 Python 音轨提取、ffmpeg 缺工具的报错。"""
+﻿"""媒体转换层：注册表、纯 Python 音轨提取、ffmpeg 缺工具的报错。"""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from douyinkit import media, mp4mux
+from huzhmi import media, mp4mux
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +165,7 @@ class AudioExtractTest(unittest.TestCase):
 
 class StepStoreTest(unittest.TestCase):
     def test_steps_roundtrip(self) -> None:
-        from douyinkit.store import Store
+        from huzhmi.store import Store
 
         with tempfile.TemporaryDirectory() as tmp:
             store = Store(str(Path(tmp) / "t.db"))

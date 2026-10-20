@@ -1,4 +1,4 @@
-"""目录模板（分类 / 分离）的单元测试。"""
+﻿"""目录模板（分类 / 分离）的单元测试。"""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import time
 import unittest
 from pathlib import Path
 
-from douyinkit.engine import DEFAULT_TEMPLATE, build_out_dir
+from huzhmi.engine import DEFAULT_TEMPLATE, build_out_dir
 
 BASE = Path("D:/downloads")
 META = {

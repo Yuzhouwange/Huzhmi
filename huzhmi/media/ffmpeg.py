@@ -1,4 +1,4 @@
-"""ffmpeg / ffprobe 的定位与调用。
+﻿"""ffmpeg / ffprobe 的定位与调用。
 
 只做三件事：**找工具、要进度、把参数拼对**。找不到就抛 `ToolMissing`，
 让上层提示用户去设置里填路径——不自动下载，也不假装成功。
@@ -54,7 +54,7 @@ def find_ffmpeg(cfg: dict | None = None) -> str | None:
     candidates.append(Path(sys.executable).resolve().parent / _exe("ffmpeg"))
     local_appdata = os.environ.get("LOCALAPPDATA")
     if local_appdata:
-        candidates.append(Path(local_appdata) / "DouyinKit" / "tools" / _exe("ffmpeg"))
+        candidates.append(Path(local_appdata) / "Huzhmi" / "tools" / _exe("ffmpeg"))
 
     for candidate in candidates:
         if candidate.is_file():

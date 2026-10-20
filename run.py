@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DouyinKit 启动入口。
+"""Huzhmi 启动入口。
 
     python run.py                # 独立窗口（没有地址栏，像本地软件）
     python run.py --no-window    # 退回默认浏览器
@@ -21,7 +21,7 @@ from pathlib import Path
 def _log_file() -> Path | None:
     """窗口版 exe 没有控制台，把日志落到 data/log.txt。"""
     try:
-        from douyinkit.paths import data_dir
+        from huzhmi.paths import data_dir
 
         target = Path(data_dir()) / "log.txt"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +51,7 @@ def _fatal(message: str) -> None:
 
         if sys.platform == "win32":
             ctypes.windll.user32.MessageBoxW(  # type: ignore[attr-defined]
-                None, message[:900], "DouyinKit 启动失败", 0x10
+                None, message[:900], "Huzhmi 启动失败", 0x10
             )
     except Exception:  # noqa: BLE001
         pass
@@ -59,8 +59,8 @@ def _fatal(message: str) -> None:
 
 def main() -> None:
     _redirect_output()
-    parser = argparse.ArgumentParser(prog="douyinkit")
-    parser.add_argument("--host", default="127.0.0.1", help="监听地址，默认仅本机")
+    parser = argparse.ArgumentParser(prog="huzhmi")
+    parser.add_argument("--host", default="127.0.0.1", help="监听地址，默认 127.0.0.1")
     parser.add_argument("--port", type=int, default=8765, help="端口，默认 8765")
     parser.add_argument("--no-window", action="store_true",
                         help="不开独立窗口，改用默认浏览器")
@@ -68,12 +68,12 @@ def main() -> None:
                         help="只起服务，不开任何界面（调试用）")
     args = parser.parse_args()
 
-    from douyinkit import single_instance
-    from douyinkit.server import serve
+    from huzhmi import single_instance
+    from huzhmi.server import serve
 
     if not single_instance.acquire():
         _redirect_output()
-        message = "DouyinKit 已经在运行。\n\n请使用已经打开的窗口；如果找不到，请在任务管理器结束 DouyinKit 后重试。"
+        message = "Huzhmi 已经在运行。\n\n请使用已经打开的窗口；如果找不到，请在任务管理器结束 Huzhmi 后重试。"
         print(message, flush=True)
         try:
             import ctypes
@@ -81,7 +81,7 @@ def main() -> None:
             if sys.platform == "win32" and (getattr(sys, "frozen", False)
                                             or sys.stdout is None):
                 ctypes.windll.user32.MessageBoxW(  # type: ignore[attr-defined]
-                    None, message, "DouyinKit", 0x40)
+                    None, message, "Huzhmi", 0x40)
         except Exception:  # noqa: BLE001
             pass
         return
